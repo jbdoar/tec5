@@ -1,0 +1,2 @@
+# sdacq32mp
+python wrapper for tec5 sdacq32mp driver dll
