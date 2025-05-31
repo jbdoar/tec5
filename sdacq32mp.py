@@ -17,21 +17,51 @@ import os
 dll_path = os.path.join(os.getcwd(), 'SDACQ64MP.dll')
 _lib = cdll.LoadLibrary(dll_path)
 
-
-
 # General functions
 
 #SDACQMP_InitLibrary
 _lib.SDACQMP_InitLibrary.argtypes = [c_long, c_long, c_long]
 _lib.SDACQMP_InitLibrary.restype = c_long
+# l_Devicetype defined in sdacq32_types.h
+def SDACQMP_InitLibrary(lFlags: int = 0, l_Devicetype: int, lRes: int = 0) -> int:
+    """Has to be called once before calling any other SDACQMP function in any application."""
+    return _lib.SDACQMP_InitLibrary(lFlags, l_Devicetype, lRes)
 
 #SDACQMP_UnInitLibrary
 _lib.SDACQMP_UnInitLibrary.argtypes = c_long
 _lib.SDACQMP_UnInitLibrary.restype = c_long
+def SDACQMP_UnInitLibrary(lRes: int = 0) -> int:
+    """Has to be called once after closing the last opened operating electronics as last SDACQMP function call in any application."""
+    return _lib.SDACQMP_UnInitLibrary(lRes)
+
 
 #SDACQMP_OpenOperationElectronicsDeviceEx
 _lib.SDACQMP_OpenOperationElectronicsDeviceEx.argtypes = [c_long, c_long, c_long, c_ulong, c_ulong]
 _lib.SDACQMP_OpenOperationElectronicsDeviceEx.restype = c_long
+def SDACQMP_OpenOperationElectronicsDeviceEx(l_initflags: int, l_Devicetype: int, l_ID: int, ul_IPAddress: int = 0, ul_AuthCode: int = 0) -> int:
+    """
+    Parameters:
+    LONG l_initflags
+        Bit 0 = 1: suppresses errors during initialization
+        Bit 1 = 1: don’t close interface if function fails, because of non-initialized data in EEPROMs, should be 0 otherwise
+        Bit 3 = 1: suppress automatic configuration
+        Other bits are reserved and must be 0.
+    LONG l_Devicetype (defined in sdacq32_types.h)
+    LONG l_ID (1..MAXINTERFACE)
+    ULONG ul_IPAddress (PD_ETH01 only, 0 otherwise)
+    ULONG ul_AuthCode (Default = 0 = no authorization code)
+
+    Description:
+    Function allocates memory for a specified interface,
+    opens the kernel mode device respectively initiates a connection
+    to the device and links it as interface number ‘l_ID’.
+
+    Remarks:
+    PD-ETH01: IP-address and device ID configuration must be done in advance via its web interface.
+    other: set ul_IPAddress and ul_AuthCode to 0 (not used).
+    """
+    return _lib.SDACQMP_OpenOperationElectronicsDeviceEx(
+
 
 #SDACQMP_InitializeOperationElectronics
 _lib.SDACQMP_InitializeOperationElectronics.argtypes = [c_long, c_long]
@@ -378,116 +408,59 @@ _lib.SDACQMP_I2C_Write_N.argtypes = [c_long, POINTER(c_ubyte), c_long, c_long, c
 _lib.SDACQMP_I2C_Write_N.restype = c_long
 
 #SDACQMP_I2C_Read_N
-_lib.SDACQMP_I2C_Read_N.argtypes =
+_lib.SDACQMP_I2C_Read_N.argtypes = [c_long, POINTER(c_ubyte), c_long, c_long]
 _lib.SDACQMP_I2C_Read_N.restype = c_long
 
 #SDACQMP_I2C_Programming
-_lib.SDACQMP_I2C_Programming.argtypes =
+_lib.SDACQMP_I2C_Programming.argtypes = [c_long, POINTER(c_ubyte), c_long, c_long, c_long]
 _lib.SDACQMP_I2C_Programming.restype = c_long
 
 #SDACQMP_I2C_Read_EEPROM_CustData
-_lib.SDACQMP_I2C_Read_EEPROM_CustData.argtypes =
+_lib.SDACQMP_I2C_Read_EEPROM_CustData.argtypes = [c_long, c_long, c_long, c_long, c_long]
 _lib.SDACQMP_I2C_Read_EEPROM_CustData.restype = c_long
 
 #SDACQMP_I2C_Write_EEPROM_CustData
-_lib.SDACQMP_I2C_Write_EEPROM_CustData.argtypes =
+_lib.SDACQMP_I2C_Write_EEPROM_CustData.argtypes = [c_long, c_long, POINTER(c_ubyte), c_long, c_long, c_long]
 _lib.SDACQMP_I2C_Write_EEPROM_CustData.restype = c_long
 
 #SDACQMP_I2C_Read_EEPROM
-_lib.SDACQMP_I2C_Read_EEPROM.argtypes =
+_lib.SDACQMP_I2C_Read_EEPROM.argtypes = [c_long, POINTER(c_ubyte), c_long]
 _lib.SDACQMP_I2C_Read_EEPROM.restype = c_long
 
 #SDACQMP_I2C_Write_EEPROM
-_lib.SDACQMP_I2C_Write_EEPROM.argtypes =
+_lib.SDACQMP_I2C_Write_EEPROM.argtypes = [c_long, POINTER(c_ubyte), c_long]
 _lib.SDACQMP_I2C_Write_EEPROM.restype = c_long
 
 #SDACQMP_I2C_GetAllTemperatures
-_lib.SDACQMP_I2C_GetAllTemperatures.argtypes =
+_lib.SDACQMP_I2C_GetAllTemperatures.argtypes = [c_long, POINTER(_TEMPERATURE_RESULTS), c_long]
 _lib.SDACQMP_I2C_GetAllTemperatures.restype = c_long
 
 #SDACQMP_I2C_GetTemperature
-_lib.SDACQMP_I2C_GetTemperature.argtypes =
+_lib.SDACQMP_I2C_GetTemperature.argtypes = [c_long, c_long, POINTER(c_float), c_long]
 _lib.SDACQMP_I2C_GetTemperature.restype = c_long
 
 #SDACQMP_Linearization
-_lib.SDACQMP_Linearization.argtypes =
+_lib.SDACQMP_Linearization.argtypes = [c_long, c_long]
 _lib.SDACQMP_Linearization.restype = c_long
 
 #SDACQMP_LinearizationChannel
-_lib.SDACQMP_LinearizationChannel.argtypes =
+_lib.SDACQMP_LinearizationChannel.argtypes = [POINTER(CHANNEL_ID), c_long, c_long] 
 _lib.SDACQMP_LinearizationChannel.restype = c_long
 
 #SDACQMP_LinearizationChannelEx
-_lib.SDACQMP_LinearizationChannelEx.argtypes =
+_lib.SDACQMP_LinearizationChannelEx.argtypes = [POINTER(CHANNEL_ID), c_long, POINTER(c_wchar_p), c_long]
 _lib.SDACQMP_LinearizationChannelEx.restype = c_long
 
 
-def SDACQMP_InitLibrary() -> int:
-    """
-    Parameters:
-    LONG lFlags (0)
-    LONG l_Devicetype (defined in sdacq32_types.h)
-    LONG lRes (0)
 
-    Return value:
-    LONG (0 = OK, -1 = NOK = error level)
 
-    Description:
-    Initialization of the SDACQ32MP library
-    This function has to be called once before calling any other SDACQMP function in any application.
-    """
-    pass
 
-def SDACQMP_UnInitLibrary() -> int:
-    """
-    Parameters:
-    LONG lRes (0)
-
-    Return value:
-    LONG (0 = OK, -1 = NOK = error level)
-
-    Description:
-    Deintialization of the SDACQMP library.
-    This function has to be called once after closing the last opened operating electronics as last SDACQMP function call in any application.
-    """
-    pass
-
-def SDACQMP_OpenOperationElectronicsDeviceEx() -> int:
-    """
-    Parameters:
-    LONG l_initflags
-        Bit 0 = 1: suppresses errors during initialization
-        Bit 1 = 1: don’t close interface if function fails, because of non-initialized data in EEPROMs, should be 0 otherwise
-        Bit 3 = 1: suppress automatic configuration
-        Other bits are reserved and must be 0.
-    LONG l_Devicetype (defined in sdacq32_types.h)
-    LONG l_ID (1..MAXINTERFACE)
-    ULONG ul_IPAddress (PD_ETH01 only, 0 otherwise)
-    ULONG ul_AuthCode (Default = 0 = no authorization code)
-
-    Return value:
-    LONG (0 = OK, -1 = NOK = error level)
-
-    Description:
-    Function allocates memory for a specified interface,
-    opens the kernel mode device respectively initiates a connection
-    to the device and links it as interface number ‘l_ID’.
-
-    Remarks:
-    PD-ETH01: IP-address and device ID configuration must
-    be done in advance via its web interface.
-    other: set ul_IPAddress and ul_AuthCode to 0 (not used).
-    """
-    pass
-
-def SDACQMP_InitializeOperationElectronics() -> int:
+def SDACQMP_InitializeOperationElectronics(l_initflags: int, l_ID: int) -> int:
     """
     Parameters:
     LONG l_initflags (Bit 0 = 1: suppresses errors during initialization)
     LONG l_ID (1..MAXINTERFACE)
 
-    Return value:
-    LONG (0 = OK, -1 = NOK = error level)
 
     Description:
     Initialization of the interface card with automatic configuration (PnP)
@@ -2201,8 +2174,7 @@ def SDACQMP_I2C_Write_N() -> int:
     """
     Parameters:
     LONG l_device_address (1...256)
-    UNSIGNED CHAR *puc_wbuf, (pointer to a string
-    with max. 8 characters (Bytes))
+    UNSIGNED CHAR *puc_wbuf, (pointer to a string with max. 8 characters (Bytes))
     LONG l_index (1...256)
     LONG l_bytes (number of Bytes 1...8)
     LONG l_ID (1...MAXINTERFACE)
@@ -2248,12 +2220,8 @@ def SDACQMP_I2C_Programming() -> int:
     LONG (0 = OK, -1 = NOK = error level)
 
     Description:
-    This function is able to program n (1<=n<=8) bytes to the I2C-Device
-    with address ‘l_device_address’ starting from device internal address
-    ‘l_index’.
-    It writes the data into the device, waits until programming cycle is
-    complete, reads back the data and compares it with the original data
-    to be written.
+    This function is able to program n (1<=n<=8) bytes to the I2C-Device with address ‘l_device_address’ starting from device internal address ‘l_index’.
+    It writes the data into the device, waits until programming cycle is complete, reads back the data and compares it with the original data to be written.
     """
     pass
 
@@ -2356,20 +2324,14 @@ def SDACQMP_I2C_GetTemperature() -> int:
     Parameters:
     LONG l_reserved, should be 0
     LONG l_index (0…7)
-    FLOAT *pf_temperature (pointer to a
-    float variable. The value is the temperature
-    value in °C with a resolution of 0.01°)
+    FLOAT *pf_temperature (pointer to a float variable. The value is the temperature value in °C with a resolution of 0.01°)
     LONG l_ID (1...MAXINTERFACE)
 
     Return value:
     LONG (0 = OK, -1 = NOK = error level)
 
     Description:
-    This function retrieves the current temperature of one specific
-    temperature sensor. All available temperature sensors can be
-    detected using the function “SDACQMP_I2C_GetAllTemperatures()”.
-    It is recommended to use “SDACQMP_I2C_GetTemperature()” for
-    a periodic refreshing and error handling.
+    This function retrieves the current temperature of one specific temperature sensor. All available temperature sensors can be detected using the function “SDACQMP_I2C_GetAllTemperatures()”. It is recommended to use “SDACQMP_I2C_GetTemperature()” for a periodic refreshing and error handling.
 
     Note: Currently only supported for USB type electronics.
     """
@@ -2613,6 +2575,7 @@ SWM_ENABLE_ACQSTAT_SOMAA = 0x20
 # short sSensorBinAreas; // CCD sensor only, Def. = 1
 # short sSensorPhysRows; // CCD sensor only, Def. = 1
 # } SENSORCONFIG_X, *P_SENSORCONFIG_X;
+
 # typedef struct _SENSORCOEFFS_X
 # {
 # double dC0; // wavelength cooefficients C0’..C4’
@@ -2640,37 +2603,38 @@ SWM_ENABLE_ACQSTAT_SOMAA = 0x20
 # } HWSETTINGS_X, *P_HWSETTINGS_X;
 
 # // Warnings
-# #define WNG_DISABLE_ALL 0x00
-# #define WNG_ADC_OVERFLOW 0x01 // Default: disabled
-# #define WNG_SPEC_BUFFER_OVERFLOW 0x02 // Default: enabled
-# #define WNG_FIFO_OVERFLOW 0x04
-# #define LS_DEF_TIMEOUT_LAMPS 80000 // 80 sec (D2)
-# #define LS_DEF_TIMEOUT_SHUTTER 1000 // 1 sec
-# #define LS_HAL_ONLY 0x01
-# #define LS_D2_ONLY 0x02
-# #define LS_HAL_AND_D2 0x03
-# #define LS_FLASH 0x04
-# #define LS_FLASH_STATE_MANUALLY 0x00
-# #define LS_FLASH_STATE_REMOTE 0x01
+WNG_DISABLE_ALL = 0x00
+WNG_ADC_OVERFLOW = 0x01 # Default: disabled
+WNG_SPEC_BUFFER_OVERFLOW = 0x02 # Default: enabled
+WNG_FIFO_OVERFLOW = 0x04
+LS_DEF_TIMEOUT_LAMPS = 80000 # 80 sec (D2)
+LS_DEF_TIMEOUT_SHUTTER = 1000 # 1 sec
+LS_HAL_ONLY = 0x01
+LS_D2_ONLY = 0x02
+LS_HAL_AND_D2 = 0x03
+LS_FLASH = 0x04
+LS_FLASH_STATE_MANUALLY = 0x00
+LS_FLASH_STATE_REMOTE = 0x01
+
 # // shutter control mode
-# #define SCM_DEFAULT_OPEN 0x00
-# #define SCM_DEFAULT_CLOSED 0x01
-# #define SCM_DEFAULT_OPEN_V1 0x02
-# #define SCM_DEFAULT_MODE SCM_DEFAULT_OPEN
-# #endif
+SCM_DEFAULT_OPEN = 0x00
+SCM_DEFAULT_CLOSED = 0x01
+SCM_DEFAULT_OPEN_V1 = 0x02
+SCM_DEFAULT_MODE = SCM_DEFAULT_OPEN
+
 
 ######################################################################
 
 # Appendix B: Error Codes and Additional Error Information
-# // sdacq32_error_codes.h
+# sdacq32_error_codes.h
 
-# //GENERAL CONSTANTS
+# GENERAL CONSTANTS
 #define ERRORTABLE
 OK = 0
 NOK = -1
 WNG = -2
 
-# //ERROR LEVELS
+# ERROR LEVELS
 HARDWARE_ERROR_FROM_DRIVER = 1
 MEMORY_ERROR = 2
 DEVICE_ERROR = 3
@@ -2681,7 +2645,7 @@ FUNCTION_CALL_EXECUTED_WITH_CORRECTED_VALUE = 7 # executed with Corrected values
 WARNING_DACQ_CONTAINS_INVALID_PIXEL_DATA = 50 # ADC Over-/Underflow
 WARNING_SPECTRAL_DATA_LOST = 51
 
-# //ERROR CODES
+# ERROR CODES
 # LEVEL 1: DRIVER ERRORS NOT USED ON THIS LEVEL
 DACQERROR_RAS_FIFOEMPTY = 101
 DACQERROR_TIMEOUT_RWS_NODATA = 102
@@ -2732,7 +2696,7 @@ WARNING_GETSCANSYNCHRON_FIFO_NOT_EMPTY = 197
 WARNING_ADC_UNDERFLOW = 198
 WARNING_ADC_OVERFLOW = 199
 
-# //LEVEL 2
+# LEVEL 2
 NOT_ABLE_TO_ALLOC_MEMORY = 201
 NOT_ABLE_TO_FREE_MEMORY = 202
 NOT_ABLE_TO_LOCK_MEMORY = 203
@@ -2740,7 +2704,7 @@ NOT_ABLE_TO_UNLOCK_MEMORY = 204
 NOT_ABLE_TO_REALLOC_MEMORY = 205
 NOT_ABLE_TO_RELOCK_MEMORY = 206
 
-# //LEVEL 3
+# LEVEL 3
 NOT_ABLE_TO_OPEN_DEVICE = 301
 NOT_ABLE_TO_CLOSE_DEVICE = 302
 DEVICE_IO_NOT_SUCCESS = 303
@@ -2755,14 +2719,14 @@ DEVICE_ID_MISMATCH = 312
 REQUEST_ACQ_EVENTS_FAILED = 313
 NONE_OF_DEVICES_ARE_ACTIVATED_FOR_DATA_ACQ = 314
 
-# //LEVEL 4
+# LEVEL 4
 TIMEOUT_COMMAND = 401
 NOT_ABLE_TO_CLOSE_SHUTTER = 402
 NOT_ABLE_TO_OPEN_SHUTTER = 403
 NOT_ABLE_TO_TURN_ON_LAMP = 404
 NOT_ABLE_TO_TURN_OFF_LAMP = 405
 
-# //LEVEL 5
+# LEVEL 5
 NO_MEMORY_ALLOCATED = 501
 INVALID_MEMORY = HANDLE = 502
 DEVICE_ALREADY_OPEN = 503
@@ -2781,7 +2745,7 @@ ERR_GENERIC_PDETH_ERROR = 515
 UNKNOWN_LS_TYPE_FOUND = 516
 LIBRARY_NOT_INITIALIZED = 517
 
-# //ERROR INFOS
+# ERROR INFOS
 INVALID_SENSORTYPE = 801
 INVALID_SENSORLENGTH = 802
 INVALID_FEETYPE = 803
@@ -2841,82 +2805,3 @@ DZA_ERR_I2C_WRITE_OR_READ_FAILED = 859
 DZA_ERR_COOLING = 860
 MUX_FS_TIMEOUT_COMMAND = 861
 LS_SECURITY_LOCK_ENGAGED = 862
-
-
-# Appendix C: Typical Program Example (Fragment) for PD-PCI01V1
-# // This program fragment demonstrates how to use the SDACQ32MP library functions by using two
-# // PCI-boards in one PC
-# // The first PCI board uses an UV sensor unit and the second PCI board uses an NIR sensor unit.
-# // Calling SDACQMP_GetSpectra with parameter ‘0’ causes a common starting of two separately
-# // threads for data acquisition, the function returns after the longest thread finished its acquisition
-# // (depending on the integration time and average number).
-# #include "sdacq32_types.h"
-# #include "sdacq32mp.h"
-# #include "sdacq32_error_codes.h"
-# #define PCI_1 1
-# #define PCI_2 2
-# #define PCI_1AND2 0 // parameter for SDACQMP_GetSpectra and
-# // SDACQMP_GetDarkCurrent only !
-# long ret;
-# LLERROR ec;
-# double IntegrationTimePCI_1 = 100.0; // 100 ms
-# double IntegrationTimePCI_2 = 50.0; // 50 ms
-# CHANNEL_ID Channel_ID1_1 = 0; // it is important to initialize with 0
-# CHANNEL_ID Channel_ID2_1 = 0; // it is important to initialize with 0
-# double spectral_data_PCI_1[2048]; // pixel data for PCI board #1 (UV)
-# double spectral_data_PCI_2[2048]; // pixel data for PCI board #2 (NIR)
-# // initialize library
-# ret = SDACQMP_InitLibrary( 0, PD_PCI01V1, 0);
-# // open device driver and initialization for PCI interface card #1
-# ret = SDACQMP_OpenOperationElectronicsDeviceEx( 0, PD_PCI01V1, PCI_1, 0, 0);
-# // automatically configuration
-# ret = SDACQMP_InitializeOperationElectronics( 0, PCI_1 );
-# // open device driver and initialization for PCI interface card #2
-# ret = SDACQMP_OpenOperationElectronicsDeviceEx( 0, PD_PCI01V1, PCI_2, 0, 0);
-# // automatically configuration
-# ret = SDACQMP_InitializeOperationElectronics( 0, PCI_2 );
-# // suppress error message box if recommended
-# ret = SDACQMP_ErrorMessages( FALSE );
-# // allocate memory for acquisition data
-# ret = SDACQMP_AllocRawData( &Channel_ID1_1 );
-# ret = SDACQMP_ParaSetMapping( &Channel_ID1_1, CHANNEL_1, PCI_1 );
-# ret = SDACQMP_AllocRawData( &Channel_ID2_1 );
-# ret = SDACQMP_ParaSetMapping( &Channel_ID2_1, CHANNEL_1, PCI_2 );
-# // change ACQ settings
-# ret = SDACQMP_ParaSetIntegrationTime( &IntegrationTimePCI_1, PCI_1 ); // change integration
-# time PCI #1
-# ret = SDACQMP_ParaSetIntegrationTime( &IntegrationTimePCI_2, PCI_2 ); // change integration
-# time PCI #2
-
-# // do data acquisition
-# ...
-# ret = SDACQMP_GetDarkCurrent( PCI_1AND2 ); // do an data acquisition with both PCI cards
-# if ( ret != OK )
-# { // example for an error management
-# SDACQMP_GetErrorCode( &ec );
-#  if ( ec.l_errorlevel > 0 )
-# { // execution failed
-# ret = MessageBox( 0, “ GetDarkCurrent execution failed ” ,"My Message Box",
-# MB_OK );
-# ...
-# }
-# }
-# else
-# {
-# ret = SDACQMP_GetSpectra( PCI_1AND2 ); // do an data acquisition with both PCI c
-# }
-# // get darkcurrent corrected data of the last acquisition for processsing
-# ret = SDACQMP_GetStoredRawData( &Channel_ID1_1, spectral_data_PCI_1 ); // UV data
-# ret = SDACQMP_GetStoredRawData( &Channel_ID2_1, spectral_data_PCI_2 ); // NIR data
-# // do data processing
-# ...
-# ...
-# // end program or data acquisition
-# ...
-# ret = SDACQMP_FreeRawData( &Channel_ID1_1 );
-# ret = SDACQMP_FreeRawData( &Channel_ID2_1 );
-# ret = SDACQMP_CloseOperationElectronics( PCI_1 );
-# ret = SDACQMP_CloseOperationElectronics( PCI_2 );
-# ...
-# // finish library usage
-# ret = SDACQMP_UnInitLibrary( 0 );
