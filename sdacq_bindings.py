@@ -283,7 +283,6 @@ class LSProperties(Structure):
                 ]
 
 
-#SDACQMP_HWConfig_ChangeLSParams
 _lib.SDACQMP_HWConfig_ChangeLSParams.argtypes = [c_long, c_long, c_long, c_long, c_long, c_long]
 _lib.SDACQMP_HWConfig_ChangeLSParams.restype = c_long
 

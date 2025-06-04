@@ -6,6 +6,8 @@ class SDACQ():
     def __init__(self):
         pass
 
+    # General
+    
     def init_library(self, flags: int = 0, device_type: int, res: int = 0) -> int:
         """
         Initializes SDACQ32MP library, must be called once before calling any other functions in the library.
@@ -21,7 +23,7 @@ class SDACQ():
         Has to be called once after closing the last opened operating electronics as last SDACQMP function call in any application.
         """
         lRes = c_long(res)
-        return _lib.SDACQMP_UnInitLibrary(lRes)
+        return int(_lib.SDACQMP_UnInitLibrary(lRes))
 
     def open_operation_electronics_device_ex(self, init_flags: int, device_type: int, ID: int, ip_address: int = 0, auth_code: int = 0) -> int:
         """
@@ -32,28 +34,57 @@ class SDACQ():
         should be 0 otherwise
         Bit 3 = 1: suppress automatic configuration
         Other bits are reserved and must be 0.
+
+        Function allocates memory for a specified interface, opens the kernel
+        mode device respectively initiates a connection to the device and
+        links it as interface number ‘l_ID’.
+
+        PD-ETH01: IP-address and device ID configuration must be done in advance via its web interface.
+        other: set ul_IPAddress and ul_AuthCode to 0 (not used).
         """
         l_initflags = c_long(init_flags)
         l_Devicetype = c_long(device_type)
         l_ID = c_long(ID)
         ul_IPAddress = c_ulong(ip_address)
         ul_AuthCode = c_ulong(auth_code)
-        return _lib.SDACQMP_OpenOperationElectronicsDeviceEx(l_initflags, l_Devicetype, l_ID, ul_IPAddress, ul_AuthCode)
+        ret = _lib.SDACQMP_OpenOperationElectronicsDeviceEx(l_initflags, l_Devicetype, l_ID, ul_IPAddress, ul_AuthCode)
+        return int(ret)
 
-    def initialize_operation_electronics(self):
+    def initialize_operation_electronics(self, init_flags: int, ID: int) -> int:
         """
-        Function allocates memory for a specified interface, opens the kernel
-mode device respectively initiates a connection to the device and
-links it as interface number ‘l_ID’.
+        Initialization of the interface card with automatic configuration (PnP)
+        These values will be reset to the related default values:
+        Integration time for acquisition: 2x minimum integration time
+        Integration time for deleting: 2x minimum integration time
+        Average number: 1 (after first initialization)
+        Hardware flash: inactive
+        Ext. triggering timeout time: 60 seconds
+        Shutter polarity: positive
+        Reset all DOUTs
         """
-        pass
+        l_initflags = c_long(init_flags)
+        l_ID = c_long(ID)
+        ret = _lib.SDACQMP_InitializeOperationElectronics(l_initflags, l_ID)
+        return int(ret)
 
-    def deinitialize_operation_electronics(self):
-        pass
+    def deinitialize_operation_electronics(self, ID: int) -> int:
+        """
+        Deinitialization of the interface, no access is possible before new initialization
+        """
+        l_ID = c_long(ID)
+        ret = _lib.SDACQMP_DeInitializeOperationElectronics(l_ID)
+        return int(ret)
 
-    def close_operation_electronics(self):
-        pass
+    def close_operation_electronics(self, ID: int) -> int:
+        """
+        Function closes the handle of the kernel mode device and deallocates its memory, no access is possible before reopen the device
+        """
+        l_ID = c_long(ID)
+        ret = _lib.SDACQMP_CloseOperationElectronics(l_ID)
+        return int(ret)
 
+    # Parameter functions
+    
     def para_set_sensor_work_mode(self):
         pass
 
@@ -111,6 +142,8 @@ links it as interface number ‘l_ID’.
     def para_set_roi_settings(self):
         pass
 
+    # data acquisition
+    
     def get_spectra(self):
         pass
 
@@ -132,6 +165,8 @@ links it as interface number ‘l_ID’.
     def set_interface_inactive(self):
         pass
 
+    # Digital I/O
+    
     def io_set_dig_output_1(self):
         pass
 
@@ -144,4 +179,36 @@ links it as interface number ‘l_ID’.
     def io_set_dig_outputs(self):
         pass
 
+    def io_get_dig_input_1(self):
+        pass
+
+    def io_get_dig_input_2(self):
+        pass
+
+    def io_get_dig_input_3(self):
+        pass
+
+    def io_get_dig_inputs(self):
+        pass
+
+    def para_set_input_source(self):
+        pass
+
+    def para_set_input_latch_mode(self):
+        pass
     
+    # Error info
+    
+    # MUX
+    
+    # Specific data structures
+    
+    # LS control
+    
+    # Data access
+    
+    # Hardware configuration
+    
+    # I2C
+
+    # Linearization
