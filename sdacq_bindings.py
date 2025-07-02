@@ -16,7 +16,7 @@ _lib = cdll.LoadLibrary(dll_path)
 _lib.SDACQMP_InitLibrary.argtypes = [c_long, c_long, c_long]
 _lib.SDACQMP_InitLibrary.restype = c_long
 
-_lib.SDACQMP_UnInitLibrary.argtypes = c_long
+_lib.SDACQMP_UnInitLibrary.argtypes = [c_long]
 _lib.SDACQMP_UnInitLibrary.restype = c_long
 
 _lib.SDACQMP_OpenOperationElectronicsDeviceEx.argtypes = [c_long, c_long, c_long, c_ulong, c_ulong]
@@ -25,10 +25,10 @@ _lib.SDACQMP_OpenOperationElectronicsDeviceEx.restype = c_long
 _lib.SDACQMP_InitializeOperationElectronics.argtypes = [c_long, c_long]
 _lib.SDACQMP_InitializeOperationElectronics.restype = c_long
 
-_lib.SDACQMP_DeInitializeOperationElectronics.argtypes = c_long
+_lib.SDACQMP_DeInitializeOperationElectronics.argtypes = [c_long]
 _lib.SDACQMP_DeInitializeOperationElectronics.restype = c_long
 
-_lib.SDACQMP_CloseOperationElectronics.argtypes = c_long
+_lib.SDACQMP_CloseOperationElectronics.argtypes = [c_long]
 _lib.SDACQMP_CloseOperationElectronics.restype = c_long
 
 # Parameter functions
@@ -95,13 +95,13 @@ _lib.SDACQMP_ParaSetROISettings.restype = c_long
 
 # Data acquisition functions
 
-_lib.SDACQMP_GetSpectra.argtypes = c_long
+_lib.SDACQMP_GetSpectra.argtypes = [c_long]
 _lib.SDACQMP_GetSpectra.restype = c_long
 
 _lib.SDACQMP_GetSpectraEx.argtypes = [c_long, c_long]
 _lib.SDACQMP_GetSpectraEx.restype = c_long
 
-_lib.SDACQMP_GetDarkCurrent.argtypes = c_long
+_lib.SDACQMP_GetDarkCurrent.argtypes = [c_long]
 _lib.SDACQMP_GetDarkCurrent.restype = c_long
 
 _lib.SDACQMP_GetDarkCurrentWithShutter.argtypes = [c_long, c_long]
@@ -110,10 +110,10 @@ _lib.SDACQMP_GetDarkCurrentWithShutter.restype = c_long
 _lib.SDACQMP_GetBufferedSpectra.argtypes = [POINTER(c_long), POINTER(c_long), c_long]
 _lib.SDACQMP_GetBufferedSpectra.restype = c_long
 
-_lib.SDACQMP_SetInterfaceActive.argtypes = c_long
+_lib.SDACQMP_SetInterfaceActive.argtypes = [c_long]
 _lib.SDACQMP_SetInterfaceActive.restype = c_long
 
-_lib.SDACQMP_SetInterfaceInActive.argtypes = c_long
+_lib.SDACQMP_SetInterfaceInActive.argtypes = [c_long]
 _lib.SDACQMP_SetInterfaceInActive.restype = c_long
 
 # Digital I/O
