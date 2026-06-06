@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tec5"
+version = "0.1.0"
+description = "Interface for tec5 SDACQ32MP.dll"
+authors = [{name = "Jason Doar", email="jbdoar@gmail.com"}]
+readme = {file = "README.org", content-type = "text/plain"}
+requires-python = ">=3.12"
+
+dependencies = []
+
+[tools.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"tec5dll" = ["lib/*.dll"]
