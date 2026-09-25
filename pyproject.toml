@@ -9,6 +9,15 @@ description = "Thin Python bindings for the tec5 SDACQ acquisition library"
 authors = [{name = "Jason Doar", email="jbdoar@gmail.com"}]
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.12"
+keywords = ["tec5", "spectrometer", "SDACQ", "ctypes"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
 
 dependencies = []
 
