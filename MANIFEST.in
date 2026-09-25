@@ -1,0 +1,18 @@
+include LICENSE
+include README.md
+include THIRD_PARTY.md
+include pyproject.toml
+recursive-include docs *.md *.txt
+recursive-include scripts *.py
+recursive-include tests *.py
+
+# Vendor runtimes, drivers, installers, and manuals are never release inputs.
+global-exclude *.dll *.DLL
+global-exclude *.sys *.SYS
+global-exclude *.inf *.INF
+global-exclude *.cat *.CAT
+global-exclude *.exe *.EXE
+global-exclude *.msi *.MSI
+global-exclude *.pdf *.PDF
+global-exclude __pycache__
+global-exclude *.py[cod]

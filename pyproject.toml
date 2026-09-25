@@ -20,9 +20,8 @@ classifiers = [
 ]
 
 dependencies = []
-
-[project.license]
-file = "LICENSE"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY.md"]
 
 [project.urls]
 Repository = "https://github.com/jbdoar/tec5"
