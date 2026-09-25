@@ -6,10 +6,10 @@ not a statement that redistribution permission has been granted.
 
 ## Current decision
 
-Keep the repository private until all third-party files and the complete Git
-history have been reviewed. Do not publish the current repository merely by
-deleting vendor files in a new commit: previously committed files remain in Git
-history.
+The tec5 runtime, drivers, installers, SDK PDFs, and vendor manuals are outside
+the scope of this repository. Developers keep locally obtained copies under the
+ignored `.local/` directory and point the Python loader at the runtime. The Git
+history must not contain these vendor-distributed files.
 
 ## Components with separate distribution concerns
 
@@ -26,8 +26,8 @@ the others.
 
 ## Permission checklist
 
-Before making the repository or binary artifacts public, obtain and retain
-written confirmation covering:
+Before separately redistributing any vendor binary or document, obtain and
+retain written confirmation covering:
 
 - The exact runtime filenames and versions that may be redistributed.
 - Whether redistribution through a public GitHub repository or GitHub Release
@@ -41,9 +41,9 @@ written confirmation covering:
 - Whether downstream users may further redistribute the files.
 - Whether older versions must be removed when a new vendor version is issued.
 
-No public redistribution grant has yet been identified in the materials
-reviewed for this project. Do not infer redistribution permission merely from
-having received or installed the SDK.
+No vendor binaries or documents will be distributed with this project. Do not
+infer redistribution permission merely from having received or installed the
+SDK.
 
 ## Recommended public repository
 
