@@ -1,14 +1,14 @@
-"""
-Minimal GS-1290 interface.
-"""
+"""Legacy minimal GS-1290 acquisition experiment."""
 
+import argparse
 from ctypes import *
-import os
 import time
 
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+
+from _vendor_runtime import load_vendor_dll
 
 
 # from sdacq_bindings import *
@@ -19,9 +19,9 @@ CHANNEL_ID = c_long
 channel_ID = CHANNEL_ID(0)
 
 # load DLL
-dll_path = os.path.join(os.path.dirname(__file__), 'SDACQ64MP.dll')
+dll, dll_path = load_vendor_dll()
 print(dll_path)
-lib = cdll.LoadLibrary(dll_path)
+lib = dll
 
 # Declare ctypes signatures
 # InitLibrary

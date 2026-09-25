@@ -1,2 +1,37 @@
-* sdacq32mp
-python wrapper for tec5 sdacq32mp driver dll
+* tec5
+
+Thin Python bindings for the Windows-only tec5 SDACQ64MP acquisition API.
+
+The vendor DLLs are not distributed with this project. Install the tec5 driver
+package separately, then provide either the DLL or its containing directory:
+
+#+begin_src python
+from tec5 import load
+from tec5.sdacq_types import CHANNEL_1, PD_USB01
+
+api = load(r"C:\Program Files\tec5\SDACQ64MP.dll")
+# Alternatively, set TEC5_SDACQ_DLL to the file or directory.
+
+api.init_library(device_type=PD_USB01)
+api.open_operation_electronics_device_ex(PD_USB01, device_id=1)
+api.initialize_operation_electronics(device_id=1)
+
+channel_id = api.allocate_raw_data()
+api.set_mapping(channel_id, CHANNEL_1, device_id=1)
+api.set_integration_time(100.0, device_id=1)
+api.get_spectra(device_id=1)
+data = api.get_stored_raw_data(channel_id, pixel_count=1024)
+#+end_src
+
+The convenience methods above cover the acquisition path validated with a
+GS-1290 and PD-USB01. Every registered vendor entry point remains available
+with its original name for direct ctypes use, for example:
+
+#+begin_src python
+api.SDACQMP_ParaSetBurstNumber(...)
+#+end_src
+
+Callers own the normal vendor lifecycle: free allocated data, deinitialize and
+close opened electronics, and uninitialize the library. Signatures outside the
+validated acquisition path are transcribed from the supplied SDK documentation
+and may require confirmation against the matching vendor C headers.

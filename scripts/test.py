@@ -1,13 +1,14 @@
-"""
-Most-minimal GS-1290 interface. 
+"""Legacy minimal GS-1290 acquisition experiment.
+
 Init SDACQMP library, connect to device, take background-subtracted spectral scan at some integration time, plot it and save file.
 """
 
 from ctypes import *
-import os
 import time
 
 import matplotlib.pyplot as plt
+
+from _vendor_runtime import load_vendor_dll
 
 
 # from sdacq_bindings import *
@@ -16,9 +17,9 @@ import matplotlib.pyplot as plt
 DEVICE_TYPE = 6 # PD_USB01
 DEVICE_ID = 1 # that's what we set, see DIP switch on USB board
 
-dll_path = os.path.join(os.path.dirname(__file__), 'SDACQ64MP.dll')
+dll, dll_path = load_vendor_dll()
 print(dll_path)
-lib = cdll.LoadLibrary(dll_path)
+lib = dll
 
 
 # initialize library
@@ -123,14 +124,14 @@ print("SDACQMP_IOSetDigInput1: ", ret)
 
 # get stored data
 
-MAXARRAYLENGTH = 1024
+MAXARRAYLENGTH = 2048
 spectral_data = (c_double * MAXARRAYLENGTH)()
 lib.SDACQMP_GetStoredRawData.argtypes = [POINTER(CHANNEL_ID), POINTER(c_double)]
 lib.SDACQMP_GetStoredRawData.restype = c_long
 ret = lib.SDACQMP_GetStoredRawData(byref(channel_ID), spectral_data)
 print("SDACQMP_GetStoredRawData: ", ret)
 
-data = [spectral_data[i] for i in range(MAXARRAYLENGTH)]
+data = [spectral_data[i] for i in range(1024)]
 print(data[:20])
 
 print(len(data))

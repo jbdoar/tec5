@@ -4,16 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tec5"
-version = "0.1.0"
-description = "Interface for tec5 SDACQ32MP.dll"
+version = "0.2.0"
+description = "Thin Python bindings for the tec5 SDACQ acquisition library"
 authors = [{name = "Jason Doar", email="jbdoar@gmail.com"}]
-readme = {file = "README.org", content-type = "text/plain"}
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.12"
 
 dependencies = []
 
-[tools.setuptools.packages.find]
-where = ["src"]
+[project.urls]
+Repository = "https://github.com/jbdoar/tec5"
 
-[tool.setuptools.package-data]
-"tec5dll" = ["lib/*.dll"]
+[tool.setuptools.packages.find]
+where = ["src"]
