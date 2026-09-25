@@ -27,6 +27,10 @@ The Python package does not currently distribute the tec5 DLLs or device
 drivers. Install the appropriate tec5 software separately and provide either
 the path to `SDACQ64MP.dll` or the directory containing it.
 
+Obtain the required SDACQ runtime, SDK, and Windows device drivers from tec5 or
+an authorized distributor. The official [tec5USA Drivers and Libraries](https://tec5usa.com/product/drivers-and-libraries/)
+page is the recommended starting point.
+
 Companion libraries such as `SDPROCCL64.dll` should remain beside
 `SDACQ64MP.dll`. Ethernet configurations may also require `PDETH64.dll`.
 
@@ -188,6 +192,8 @@ higher-level behavior without making the base bindings instrument-specific.
 
 ## Distribution
 
-The repository is currently private while redistribution rights and repository
-history are reviewed. See [Distribution notes](docs/distribution.md) before
-publishing source, vendor binaries, documentation, or driver packages.
+The Python source is available under the [MIT License](LICENSE). Vendor runtime
+libraries, Windows drivers, installers, SDK manuals, and other tec5-distributed
+files are not included and must be obtained separately from tec5 or another
+authorized source. See [Third-party software and materials](THIRD_PARTY.md) and
+the [distribution notes](docs/distribution.md) for details.
