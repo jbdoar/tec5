@@ -31,8 +31,10 @@ Obtain the required SDACQ runtime, SDK, and Windows device drivers from tec5 or
 an authorized distributor. The official [tec5USA Drivers and Libraries](https://tec5usa.com/product/drivers-and-libraries/)
 page is the recommended starting point.
 
-Companion libraries such as `SDPROCCL64.dll` should remain beside
-`SDACQ64MP.dll`. Ethernet configurations may also require `PDETH64.dll`.
+`SDACQ64MP.dll` will not load unless its companion libraries `SDPROCCL64.dll`
+and `PDETH64.dll` are in the same directory. Both are required, even for USB
+hardware. Some vendor application folders ship only the 32-bit `PDETH.dll`
+and cannot be used from 64-bit Python.
 
 ## Installation
 

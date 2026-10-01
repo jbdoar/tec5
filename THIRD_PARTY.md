@@ -13,7 +13,7 @@ or another authorized source:
 
 - `SDACQ64MP.dll`
 - `SDPROCCL64.dll`
-- `PDETH64.dll`, when required for Ethernet hardware
+- `PDETH64.dll` (required to load `SDACQ64MP.dll`, including for USB hardware)
 - The applicable signed Windows device driver or vendor installer
 
 Those files remain subject to their vendor's copyright, license, support, and

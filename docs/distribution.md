@@ -16,8 +16,8 @@ history must not contain these vendor-distributed files.
 Treat these as independent deliverables:
 
 1. The original Python code in this repository.
-2. The tec5 user-mode runtime, including `SDACQ64MP.dll`, `SDPROCCL64.dll`, and
-   possibly `PDETH64.dll`.
+2. The tec5 user-mode runtime, including `SDACQ64MP.dll` and the companion
+   libraries it needs in order to load, `SDPROCCL64.dll` and `PDETH64.dll`.
 3. The tec5 Windows device-driver package or installer.
 4. Vendor manuals, SDK PDFs, headers, examples, and other documentation.
 
