@@ -13,7 +13,11 @@ from pathlib import Path
 from typing import Any
 
 from ._bindings import bind_functions
-from .sdacq_types import CHANNEL_ID, DOUBLE, LONG, ULONG
+from .sdacq_types import CHANNEL_ID, DOUBLE, ELC_INTERFACE, LONG, UCHAR, ULONG
+
+CUSTOMER_DATA_BYTES = 64
+"""Size of the customer data area in an electronics' EEPROM (addresses 0-63)."""
+_CUSTOMER_DATA_CHUNK = 8  # bytes per SDACQMP_I2C_*_EEPROM_CustData call
 
 DLL_ENV_VAR = "TEC5_SDACQ_DLL"
 DLL_NAME = "SDACQ64MP.dll"
@@ -189,6 +193,45 @@ class SDACQLibrary:
         status = self.SDACQMP_GetStoredRawData(byref(channel), data)
         _checked("SDACQMP_GetStoredRawData", status)
         return list(data)
+
+
+    def read_customer_data(self, device_id: int, *, family: int = ELC_INTERFACE,
+                           index: int = 0, count: int = CUSTOMER_DATA_BYTES) -> bytes:
+        """`count` bytes of the customer data area (64 bytes in the EEPROM of
+        the interface or front-end electronics, `family`) from `index`."""
+        _check_range(index, count)
+        data = bytearray()
+        for start in range(index, index + count, _CUSTOMER_DATA_CHUNK):
+            n = min(_CUSTOMER_DATA_CHUNK, index + count - start)
+            buffer = (UCHAR * n)()
+            status = self.SDACQMP_I2C_Read_EEPROM_CustData(
+                LONG(family), LONG(0), buffer, LONG(start), LONG(n), LONG(device_id))
+            _checked("SDACQMP_I2C_Read_EEPROM_CustData", status)
+            data += bytes(buffer)
+        return bytes(data)
+
+    def write_customer_data(self, data: bytes, device_id: int, *, family: int = ELC_INTERFACE,
+                            index: int = 0) -> None:
+        """Write `data` into the customer data area from `index`, 8 bytes a
+        call, then read it back: SDACQError if it doesn't match."""
+        data = bytes(data)
+        _check_range(index, len(data))
+        for offset in range(0, len(data), _CUSTOMER_DATA_CHUNK):
+            chunk = data[offset:offset + _CUSTOMER_DATA_CHUNK]
+            buffer = (UCHAR * len(chunk))(*chunk)
+            status = self.SDACQMP_I2C_Write_EEPROM_CustData(
+                LONG(family), LONG(0), buffer, LONG(index + offset), LONG(len(chunk)),
+                LONG(device_id))
+            _checked("SDACQMP_I2C_Write_EEPROM_CustData", status)
+        back = self.read_customer_data(device_id, family=family, index=index, count=len(data))
+        if back != data:
+            raise SDACQError("SDACQMP_I2C_Write_EEPROM_CustData", -1, value=back)
+
+
+def _check_range(index: int, count: int) -> None:
+    if count < 1 or index < 0 or index + count > CUSTOMER_DATA_BYTES:
+        raise ValueError(f"customer data is addresses 0-{CUSTOMER_DATA_BYTES - 1}: "
+                         f"{count} bytes from {index} don't fit")
 
 
 def load(path: os.PathLike[str] | str | None = None) -> SDACQLibrary:

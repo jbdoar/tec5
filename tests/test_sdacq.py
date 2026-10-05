@@ -85,3 +85,52 @@ class ConvenienceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FakeEEPROM:
+    """The customer data area: 64 bytes, read and written 8 at most a call."""
+
+    def __init__(self, broken=False):
+        self.memory = bytearray(64)
+        self.broken, self.calls = broken, []
+
+    def read(self, family, res, buffer, index, count, device):
+        self.calls.append(("read", family.value, index.value, count.value))
+        assert count.value <= 8
+        for k in range(count.value):
+            buffer[k] = self.memory[index.value + k]
+        return 0
+
+    def write(self, family, res, buffer, index, count, device):
+        self.calls.append(("write", family.value, index.value, count.value))
+        assert count.value <= 8
+        for k in range(count.value):
+            self.memory[index.value + k] = buffer[k] ^ (0xFF if self.broken else 0)
+        return 0
+
+
+class CustomerDataTests(unittest.TestCase):
+    def api(self, **kwargs):
+        eeprom = FakeEEPROM(**kwargs)
+        dll = FakeDLL()
+        dll.SDACQMP_I2C_Read_EEPROM_CustData = eeprom.read
+        dll.SDACQMP_I2C_Write_EEPROM_CustData = eeprom.write
+        return SDACQLibrary(dll, "fake"), eeprom
+
+    def test_written_in_chunks_of_8_and_read_back(self):
+        api, eeprom = self.api()
+        api.write_customer_data(b"GSRD\x01RADOMA-0123", 1, index=3)
+        self.assertEqual(api.read_customer_data(1, index=3, count=16), b"GSRD\x01RADOMA-0123")
+        writes = [c for c in eeprom.calls if c[0] == "write"]
+        self.assertEqual([(c[2], c[3]) for c in writes], [(3, 8), (11, 8)])
+
+    def test_a_write_that_doesnt_read_back_raises(self):
+        api, _ = self.api(broken=True)
+        with self.assertRaises(SDACQError):
+            api.write_customer_data(b"abc", 1)
+
+    def test_the_area_is_64_bytes(self):
+        api, _ = self.api()
+        with self.assertRaises(ValueError):
+            api.write_customer_data(b"x" * 10, 1, index=60)
+        self.assertEqual(len(api.read_customer_data(1)), 64)
