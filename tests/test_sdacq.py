@@ -54,6 +54,20 @@ class ConvenienceTests(unittest.TestCase):
         api = SDACQLibrary(FakeDLL(), "fake")
         self.assertEqual(api.set_integration_time(10, 1), 12.5)
 
+    def test_the_long_ranges_take_whole_milliseconds(self):
+        dll = FakeDLL()
+        dll.SDACQMP_ParaSetIntegrationTime2 = FakeFunction()
+        dll.SDACQMP_ParaSetIntegrationTime3 = FakeFunction(
+            effect=lambda value, _device: setattr(value._obj, "value", 20000))
+        dll.SDACQMP_ParaGetIntegrationTimeLimits = FakeFunction(
+            effect=lambda low, high, _device: (setattr(low._obj, "value", 8.0),
+                                               setattr(high._obj, "value", 520000.0)))
+        api = SDACQLibrary(dll, "fake")
+        self.assertEqual(api.set_integration_time2(19999.6, 1), 20000)
+        self.assertEqual(dll.SDACQMP_ParaSetIntegrationTime2.calls[0][0]._obj.value, 20000)
+        self.assertEqual(api.set_integration_time3(19996, 1), 20000)  # the device's accepted value
+        self.assertEqual(api.get_integration_time_limits(1), (8.0, 520000.0))
+
     def test_nonzero_status_raises_with_context(self):
         dll = FakeDLL()
         dll.SDACQMP_InitLibrary.result = -1

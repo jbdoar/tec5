@@ -132,10 +132,37 @@ class SDACQLibrary:
         _checked("SDACQMP_ParaSetMapping", status)
 
     def set_integration_time(self, milliseconds: float, device_id: int) -> float:
+        """The standard range: 0.1 ms resolution, up to ~6.5 s (the limits
+        ParaGetIntegrationTimeLimits reports after this). Keep values within
+        that range: on a PD-USB01 a longer one hangs instead of being limited."""
         value = DOUBLE(milliseconds)
         status = self.SDACQMP_ParaSetIntegrationTime(byref(value), LONG(device_id))
         _checked("SDACQMP_ParaSetIntegrationTime", status, value=value.value)
         return float(value.value)
+
+    def set_integration_time2(self, milliseconds: int, device_id: int) -> int:
+        """The 1 ms range: up to 65 s. Afterwards the limits reported are this
+        range's; set_integration_time() goes back to the standard one."""
+        value = LONG(int(round(milliseconds)))
+        status = self.SDACQMP_ParaSetIntegrationTime2(byref(value), LONG(device_id))
+        _checked("SDACQMP_ParaSetIntegrationTime2", status, value=value.value)
+        return int(value.value)
+
+    def set_integration_time3(self, milliseconds: int, device_id: int) -> int:
+        """The 8 ms range: up to 520 s (PD-PCI01V1, and PD-USB01 from CPLD
+        2.04 / driver 2.0.1.3). The value is in ms, as the others."""
+        value = LONG(int(round(milliseconds)))
+        status = self.SDACQMP_ParaSetIntegrationTime3(byref(value), LONG(device_id))
+        _checked("SDACQMP_ParaSetIntegrationTime3", status, value=value.value)
+        return int(value.value)
+
+    def get_integration_time_limits(self, device_id: int) -> tuple[float, float]:
+        """(low, high) ms of the range last set (standard, 2 or 3)."""
+        low, high = DOUBLE(), DOUBLE()
+        status = self.SDACQMP_ParaGetIntegrationTimeLimits(byref(low), byref(high),
+                                                            LONG(device_id))
+        _checked("SDACQMP_ParaGetIntegrationTimeLimits", status)
+        return float(low.value), float(high.value)
 
     def get_dark_current(self, device_id: int) -> None:
         status = self.SDACQMP_GetDarkCurrent(LONG(device_id))
