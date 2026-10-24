@@ -9,6 +9,7 @@ from __future__ import annotations
 from ctypes import CDLL, byref
 from dataclasses import dataclass
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,10 @@ from .sdacq_types import CHANNEL_ID, DOUBLE, ELC_INTERFACE, LONG, UCHAR, ULONG
 CUSTOMER_DATA_BYTES = 64
 """Size of the customer data area in an electronics' EEPROM (addresses 0-63)."""
 _CUSTOMER_DATA_CHUNK = 8  # bytes per SDACQMP_I2C_*_EEPROM_CustData call
+EEPROM_WRITE_SETTLE = 0.25
+"""Seconds to wait after each customer-data write before the next I2C call:
+one sent sooner never returns (GS-1290 SN-2015's interface electronics: the
+write returns at once, the next read or write hangs; 1 s after, fine)."""
 
 DLL_ENV_VAR = "TEC5_SDACQ_DLL"
 DLL_NAME = "SDACQ64MP.dll"
@@ -240,7 +245,8 @@ class SDACQLibrary:
     def write_customer_data(self, data: bytes, device_id: int, *, family: int = ELC_INTERFACE,
                             index: int = 0) -> None:
         """Write `data` into the customer data area from `index`, 8 bytes a
-        call, then read it back: SDACQError if it doesn't match."""
+        call, each followed by EEPROM_WRITE_SETTLE seconds' wait, then read
+        it back: SDACQError if it doesn't match."""
         data = bytes(data)
         _check_range(index, len(data))
         for offset in range(0, len(data), _CUSTOMER_DATA_CHUNK):
@@ -250,6 +256,7 @@ class SDACQLibrary:
                 LONG(family), LONG(0), buffer, LONG(index + offset), LONG(len(chunk)),
                 LONG(device_id))
             _checked("SDACQMP_I2C_Write_EEPROM_CustData", status)
+            time.sleep(EEPROM_WRITE_SETTLE)
         back = self.read_customer_data(device_id, family=family, index=index, count=len(data))
         if back != data:
             raise SDACQError("SDACQMP_I2C_Write_EEPROM_CustData", -1, value=back)

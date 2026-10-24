@@ -138,6 +138,17 @@ class CustomerDataTests(unittest.TestCase):
         writes = [c for c in eeprom.calls if c[0] == "write"]
         self.assertEqual([(c[2], c[3]) for c in writes], [(3, 8), (11, 8)])
 
+    def test_each_write_is_followed_by_a_wait(self):
+        from unittest import mock
+
+        import tec5.sdacq as sdacq
+
+        api, eeprom = self.api()
+        with mock.patch.object(sdacq.time, "sleep") as sleep:
+            api.write_customer_data(b"x" * 20, 1)
+        self.assertEqual(sleep.call_count, 3)  # 8 + 8 + 4 bytes
+        self.assertEqual(sleep.call_args.args, (sdacq.EEPROM_WRITE_SETTLE,))
+
     def test_a_write_that_doesnt_read_back_raises(self):
         api, _ = self.api(broken=True)
         with self.assertRaises(SDACQError):
